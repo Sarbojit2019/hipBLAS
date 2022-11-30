@@ -21,49 +21,61 @@
  *
  * ************************************************************************ */
 
-//#include <hip/hip_runtime.h>
-#include <hipblas.h>
-#include <exceptions.hpp>
-#include <algorithm>
-#include <functional>
 #include "sycl_w.h"
+#include <algorithm>
+#include <exceptions.hpp>
+#include <functional>
+#include <hipblas.h>
+//#include <hip/hip_runtime.h>
 #include "deps/onemkl.h"
+#include "hip/hip_interop.h"
 //#include <math.h>
 
-using namepace oneapi;
+//using namespace oneapi;
 
-hipblasStatus_t
-hipblasCreate(hipblasHandle_t* handle)
+void hip_init()
+{
+    // We need to call chip-spv init to make sure chip has got context and other handles created
+    hipStream_t stream = nullptr;
+    hipError_t  error;
+    error = hipStreamCreate(&stream);
+    uintptr_t nativeHandlers[4];
+    int       numItems = 4;
+    hipGetBackendNativeHandles((uintptr_t)stream, nativeHandlers, &numItems);
+    sycl_init(nativeHandlers, &numItems);
+}
+
+hipblasStatus_t hipblasCreate(hipblasHandle_t* handle)
 try
 {
-    return syclblasCreate((syclblasHandle_t*)handle));
+    hip_init();
+    return syclblasCreate((syclblasHandle_t*)handle);
 }
 catch(...)
 {
     return exception_to_hipblas_status();
 }
 
-hipblasStatus_t
-hipblasDestroy(hipblasHandle_t handle)
+hipblasStatus_t hipblasDestroy(hipblasHandle_t handle)
 try
 {
-    return syclblasDestroy((syclblasHandle_t)handle));
+    return syclblasDestroy((syclblasHandle_t)handle);
 }
 catch(...)
 {
     return exception_to_hipblas_status();
 }
 
-hipblasStatus_t
-hipblasSetStream(hipblasHandle_t handle, hipStream_t stream)
+hipblasStatus_t hipblasSetStream(hipblasHandle_t handle, hipStream_t stream)
 try
 {
     // Obtain the handles to the LZ handlers.
     unsigned long lzHandles[4];
     int           nHandles = 0;
-    hiplzStreamNativeInfo(stream, lzHandles, &nHandles);
+    //hiplzStreamNativeInfo(stream, lzHandles, &nHandles);
 
-    return syclblasSetStream((syclblasHandle_t)handle, nHandles, lzHandles, stream);
+    //return syclblasSetStream((syclblasHandle_t)handle, nHandles, lzHandles, stream);
+    return HIPBLAS_STATUS_NOT_SUPPORTED;
 }
 catch(...)
 {
@@ -74,9 +86,9 @@ hipblasStatus_t
     hipblasScopy(hipblasHandle_t handle, int n, const float* x, int incx, float* y, int incy)
 try
 {
-    print_me(); // coming from sycl_wrapper
+    // print_me(); // coming from sycl_wrapper
 
-    onemklScopy(syclblasGetSyclQueue((syclblasHandle_t) handle, n, x, incx, y, incy);  
+    //onemklScopy(syclblasGetSyclQueue((syclblasHandle_t) handle), n, x, incx, y, incy);
     return HIPBLAS_STATUS_SUCCESS;
 }
 catch(...)

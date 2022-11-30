@@ -44,7 +44,7 @@ set_source_files_properties(example_c.c PROPERTIES COMPILE_FLAGS "-xc -std=c99")
 #set_source_files_properties(example_sgemm_strided_batched.cpp PROPERTIES COMPILE_FLAGS "-std=c++11")
 
 if( NOT TARGET hipblas )
-  find_package( hipblas CONFIG PATHS ${ROCM_PATH}/hipblas )
+  find_package( hipblas CONFIG PATHS ~/src/Sarbojit_hipBLAS/build/library/src )
   if( NOT hipblas_FOUND )
     message( FATAL_ERROR "hipBLAS is a required dependency and is not found; try adding rocblas path to CMAKE_PREFIX_PATH")
   endif( )

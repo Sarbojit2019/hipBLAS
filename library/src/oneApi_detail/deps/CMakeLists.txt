@@ -1,4 +1,4 @@
-set(CMAKE_CXX_COMPILER icpx)
+set(CMAKE_CXX_COMPILER dpcpp)
 set(CMAKE_CXX_FLAGS "-Wno-deprecated-declarations")
 set(POSITION_INDEPENDENT_CODE ON)
 
