@@ -21,13 +21,13 @@
  *
  * ************************************************************************ */
 
-#include "sycl_w.h"
 #include <algorithm>
-#include <exceptions.hpp>
 #include <functional>
 #include <hipblas.h>
 //#include <hip/hip_runtime.h>
 #include "deps/onemkl.h"
+#include <exceptions.hpp>
+#include "sycl_w.h"
 #include "hip/hip_interop.h"
 //#include <math.h>
 
@@ -42,7 +42,7 @@ void hip_init()
     uintptr_t nativeHandlers[4];
     int       numItems = 4;
     hipGetBackendNativeHandles((uintptr_t)stream, nativeHandlers, &numItems);
-    sycl_init(nativeHandlers, &numItems);
+    sycl_init(nativeHandlers, numItems);
 }
 
 hipblasStatus_t hipblasCreate(hipblasHandle_t* handle)

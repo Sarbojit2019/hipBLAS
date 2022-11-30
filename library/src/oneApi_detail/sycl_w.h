@@ -8,7 +8,7 @@ extern "C" {
 #endif
 
 typedef struct syclblasHandle* syclblasHandle_t;
-bool                           sycl_init(uintptr_t* nativeHandles, int* numHandles);
+bool                           sycl_init(uintptr_t* nativeHandles, int numHandles);
 hipblasStatus_t                syclblasCreate(syclblasHandle_t* handle);
 hipblasStatus_t                syclblasDestroy(syclblasHandle_t handle);
 hipblasStatus_t                syclblasSetStream(syclblasHandle_t handle, hipStream_t stream);

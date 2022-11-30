@@ -40,9 +40,9 @@ struct syclblasHandle
 // Global syclblasHandle
 syclblasHandle* g_SyclBlasHandle = nullptr;
 
-bool sycl_init(uintptr_t* nativeHandles, int* numHandles)
+bool sycl_init(uintptr_t* nativeHandles, int numHandles)
 {
-    if(nativeHandles == nullptr or numHandles < 4)
+    if(nativeHandles == nullptr || numHandles < 4)
     {
         return false;
     }
@@ -63,10 +63,10 @@ bool sycl_init(uintptr_t* nativeHandles, int* numHandles)
     if(g_SyclBlasHandle == nullptr)
     {
         g_SyclBlasHandle               = new syclblasHandle();
-        g_SyclBlasHandle->platform.val = sycl_platform;
-        g_SyclBlasHandle->device.val   = sycl_device;
-        g_SyclBlasHandle->context      = sycl_context;
-        g_SyclBlasHandle->queue        = sycl_queue;
+        g_SyclBlasHandle->platform->val = sycl_platform;
+        g_SyclBlasHandle->device->val   = sycl_device;
+        g_SyclBlasHandle->context->val  = sycl_context;
+        g_SyclBlasHandle->queue->val    = sycl_queue;
     }
     return true;
 }
@@ -81,7 +81,7 @@ hipblasStatus_t syclblasCreate(syclblasHandle_t* handle)
             return HIPBLAS_STATUS_HANDLE_IS_NULLPTR;
         }
         // shall we do deep copy?
-        handle = &g_SyclBlasHandle
+        handle = &g_SyclBlasHandle;
         // FIX Me:  needs to get the default NULL stream from HIP runtime to set
     }
     return (handle != nullptr) ? HIPBLAS_STATUS_SUCCESS : HIPBLAS_STATUS_HANDLE_IS_NULLPTR;
