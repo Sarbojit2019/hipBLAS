@@ -474,6 +474,19 @@ typedef enum
 extern "C" {
 #endif
 
+// WORKAROUND:
+// Workaround needed to make sure sync calls syncs sycl and hip tasks
+// sycl has cmd buffering feature for L0 which may create issues in
+// some situations hence this workaround.
+
+#ifdef __HIP_PLATFORM_SPIRV__
+#define hipDeviceSynchronize hipblasDeviceSynchronize
+#define hipStreamSynchronize hipblasStreamSynchronize
+#endif
+
+HIPBLAS_EXPORT hipError_t hipblasDeviceSynchronize();
+HIPBLAS_EXPORT hipError_t hipblasStreamSynchronize(hipStream_t stream);
+
 /*! \brief Create hipblas handle. */
 HIPBLAS_EXPORT hipblasStatus_t hipblasCreate(hipblasHandle_t* handle);
 

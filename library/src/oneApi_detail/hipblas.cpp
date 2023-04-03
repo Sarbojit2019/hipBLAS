@@ -11,6 +11,40 @@
 
 #include "sycl_w.h"
 
+// Force override sync functions to original hip functions
+// As of now I am ignoring compile time warning of redefinition
+#define hipDeviceSynchronize hipDeviceSynchronize
+#define hipStreamSynchronize hipStreamSynchronize
+
+syclblasHandle_t g_handle = nullptr;
+
+// internal functions
+hipError_t hipblasDeviceSynchronize() {
+    // TODO: Need to track all active queues and wait for all of them to complete
+    //       As of now we are just waiting for current queue to finish.
+    //       In this blas implementation we don't track all active queues hence
+    //       it is hard to know the status of all of them.
+
+    // sync sycl queue
+    // this will help wait for all tasks pending in sycl queue to complete
+    if (g_handle != nullptr) {
+        auto sycl_queue = syclblas_get_sycl_queue((syclblasHandle_t)g_handle);
+        syclblas_queue_wait(sycl_queue);
+    }
+    return hipDeviceSynchronize();
+}
+
+hipError_t hipblasStreamSynchronize(hipStream_t strm) {
+    // sync sycl queue
+    // this will help wait for all tasks pending in sycl queue to complete
+    if (g_handle != nullptr) {
+        auto sycl_queue = syclblas_get_sycl_queue((syclblasHandle_t)g_handle);
+        syclblas_queue_wait(sycl_queue);
+    }
+
+    return hipStreamSynchronize(strm);
+}
+
 // local functions
 static hipblasStatus_t updateSyclHandlesToCrrStream(hipStream_t stream, syclblasHandle_t handle)
 {
@@ -23,6 +57,7 @@ static hipblasStatus_t updateSyclHandlesToCrrStream(hipStream_t stream, syclblas
 
     //Fix-Me : Should Sycl know hipStream_t??
     syclblas_set_stream(handle, lzHandles, nHandles, stream, backendName);
+    g_handle = handle;
     return HIPBLAS_STATUS_SUCCESS;
 }
 
@@ -1955,7 +1990,7 @@ try
     if (handle == nullptr || x == nullptr || y == nullptr ||result == nullptr ||
         incx <= 0 || incy <= 0 || n <= 0) {
         return HIPBLAS_STATUS_INVALID_VALUE;
-    }    
+    }
     hipError_t hip_status;
     bool is_result_dev_ptr = (queryCurrentPtrMode(handle) == HIPBLAS_POINTER_MODE_DEVICE);
     auto sycl_queue = syclblas_get_sycl_queue((syclblasHandle_t)handle);
@@ -1985,7 +2020,7 @@ try
     if (handle == nullptr || x == nullptr || y == nullptr ||result == nullptr ||
         incx <= 0 || incy <= 0 || n <= 0) {
         return HIPBLAS_STATUS_INVALID_VALUE;
-    }    
+    }
     hipError_t hip_status;
     bool is_result_dev_ptr = (queryCurrentPtrMode(handle) == HIPBLAS_POINTER_MODE_DEVICE);
     auto sycl_queue = syclblas_get_sycl_queue((syclblasHandle_t)handle);
@@ -2016,7 +2051,7 @@ try
     if (handle == nullptr || x == nullptr || y == nullptr ||result == nullptr ||
         incx <= 0 || incy <= 0 || n <= 0) {
         return HIPBLAS_STATUS_INVALID_VALUE;
-    }    
+    }
     hipError_t hip_status;
     bool is_result_dev_ptr = (queryCurrentPtrMode(handle) == HIPBLAS_POINTER_MODE_DEVICE);
     auto sycl_queue = syclblas_get_sycl_queue((syclblasHandle_t)handle);
@@ -2047,7 +2082,7 @@ try
     if (handle == nullptr || x == nullptr || y == nullptr ||result == nullptr ||
         incx <= 0 || incy <= 0 || n <= 0) {
         return HIPBLAS_STATUS_INVALID_VALUE;
-    }    
+    }
     hipError_t hip_status;
     bool is_result_dev_ptr = (queryCurrentPtrMode(handle) == HIPBLAS_POINTER_MODE_DEVICE);
     auto sycl_queue = syclblas_get_sycl_queue((syclblasHandle_t)handle);
@@ -2078,7 +2113,7 @@ try
     if (handle == nullptr || x == nullptr || y == nullptr ||result == nullptr ||
         incx <= 0 || incy <= 0 || n <= 0) {
         return HIPBLAS_STATUS_INVALID_VALUE;
-    }    
+    }
     hipError_t hip_status;
     bool is_result_dev_ptr = (queryCurrentPtrMode(handle) == HIPBLAS_POINTER_MODE_DEVICE);
     auto sycl_queue = syclblas_get_sycl_queue((syclblasHandle_t)handle);
@@ -2108,7 +2143,7 @@ try
     if (handle == nullptr || x == nullptr || y == nullptr ||result == nullptr ||
         incx <= 0 || incy <= 0 || n <= 0) {
         return HIPBLAS_STATUS_INVALID_VALUE;
-    }    
+    }
     hipError_t hip_status;
     bool is_result_dev_ptr = (queryCurrentPtrMode(handle) == HIPBLAS_POINTER_MODE_DEVICE);
     auto sycl_queue = syclblas_get_sycl_queue((syclblasHandle_t)handle);
